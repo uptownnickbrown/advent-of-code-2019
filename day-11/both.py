@@ -1,12 +1,6 @@
 from itertools import permutations
 from IntcodeComputer import *
 
-def print_coord(color_val):
-    if color_val == 0:
-        return '.'
-    if color_val == 1:
-        return '#'
-
 class Robot:
     def __init__(self, grid):
         self.heading = 0 # 0 = up
@@ -53,9 +47,9 @@ class Robot:
 
 
 class Grid:
-    def __init__(self):
+    def __init__(self, start_color = 0):
         self.coords = {}
-        self.coords[(0,0)] = 0
+        self.coords[(0,0)] = start_color
         self.robot = Robot(self)
 
     def __repr__(self):
@@ -80,21 +74,35 @@ class Grid:
             rows.append(row)
         return '\n'.join(rows)
 
-computer = Computer([int(address) for address in open('input.txt', 'r').read().split(',')])
-grid = Grid()
+def print_coord(color_val):
+    if color_val == 0:
+        return '.'
+    if color_val == 1:
+        return '#'
 
 def paint_turn_move(outputs):
     grid.robot.paint(outputs[0])
     grid.robot.turn(outputs[1])
     grid.robot.move()
 
-while computer.complete == False:
-    on = grid.coords[grid.robot.position()]
-    computer.run_to_pause(inputs=[on])
-    paint_turn_move(computer.outputs[-2:])
+def paint_until_done(computer, grid):
+    while computer.complete == False:
+        on = grid.coords[grid.robot.position()]
+        computer.run_to_pause(inputs=[on])
+        paint_turn_move(computer.outputs[-2:])
+
+raw_input = [int(address) for address in open('input.txt', 'r').read().split(',')]
+
+computer = Computer(raw_input)
+grid = Grid()
+paint_until_done(computer, grid)
 
 print('Answer 1:')
 print(len(grid.coords))
 
-print('Answer 2:')
+computer = Computer(raw_input)
+grid = Grid(start_color=1)
+paint_until_done(computer, grid)
 
+print('Answer 2:')
+print(grid)
